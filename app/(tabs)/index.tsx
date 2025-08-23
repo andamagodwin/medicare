@@ -1,126 +1,185 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { useAuthStore } from '../../store/store';
+import { Stack } from 'expo-router';
+import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { AntDesign } from '@expo/vector-icons';
+import { useEffect } from 'react';
+import { useCategoriesStore } from '../../store/categoriesStore';
+
+// Fallback categories data (local images mapping)
+const getIconSource = (iconName: string) => {
+  const icons: { [key: string]: any } = {
+    heartbeat: require('../../assets/categories/heart.png'),
+    pediatrician: require('../../assets/categories/baby-boy.png'),
+    brain: require('../../assets/categories/brain.png'),
+    teeth: require('../../assets/categories/smile.png'),
+    stomach: require('../../assets/categories/stomach1.png'),
+    kidney: require('../../assets/categories/urology.png'),
+    cancer: require('../../assets/categories/cancer-cell.png'),
+    homeopathy: require('../../assets/categories/herbal-treatment.png'),
+    'healthcare-and-medical': require('../../assets/categories/healthcare-and-medical.png'),
+    patient: require('../../assets/categories/patient.png'),
+  };
+  return icons[iconName] || icons['healthcare-and-medical'];
+};
 
 export default function Home() {
-  const { user } = useAuthStore();
+  const { categories, loading, fetchCategories } = useCategoriesStore();
 
-  const PatientDashboard = () => (
-    <ScrollView className="flex-1 bg-gray-50">
-      <View className="p-6">
-        {/* Welcome Section */}
-        <View className="bg-white rounded-lg p-6 mb-6 shadow-sm">
-          <Text className="text-2xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.name}!
-          </Text>
-          <Text className="text-gray-600">
-            How are you feeling today?
-          </Text>
-        </View>
-
-        {/* Quick Actions */}
-        <View className="mb-6">
-          <Text className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</Text>
-          
-          <View className="space-y-3">
-            <TouchableOpacity className="bg-blue-600 rounded-lg p-4">
-              <Text className="text-white font-semibold text-lg">Book Appointment</Text>
-              <Text className="text-blue-100">Schedule with your doctor</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity className="bg-green-600 rounded-lg p-4">
-              <Text className="text-white font-semibold text-lg">View Medical Records</Text>
-              <Text className="text-green-100">Access your health history</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity className="bg-purple-600 rounded-lg p-4">
-              <Text className="text-white font-semibold text-lg">Prescription Refill</Text>
-              <Text className="text-purple-100">Request medication refills</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Recent Activity */}
-        <View className="bg-white rounded-lg p-6 shadow-sm">
-          <Text className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</Text>
-          <Text className="text-gray-500">No recent activity</Text>
-        </View>
-      </View>
-    </ScrollView>
-  );
-
-  const DoctorDashboard = () => (
-    <ScrollView className="flex-1 bg-gray-50">
-      <View className="p-6">
-        {/* Welcome Section */}
-        <View className="bg-white rounded-lg p-6 mb-6 shadow-sm">
-          <Text className="text-2xl font-bold text-gray-900 mb-2">
-            Dr. {user?.name}
-          </Text>
-          <Text className="text-gray-600">
-            {user?.specialization}
-          </Text>
-          <Text className="text-sm text-gray-500 mt-1">
-            License: {user?.licenseNumber}
-          </Text>
-        </View>
-
-        {/* Today&apos;s Schedule */}
-        <View className="mb-6">
-          <Text className="text-lg font-semibold text-gray-900 mb-4">Today&apos;s Schedule</Text>
-          
-          <View className="bg-white rounded-lg p-4 shadow-sm">
-            <Text className="text-gray-500">No appointments scheduled for today</Text>
-          </View>
-        </View>
-
-        {/* Quick Actions */}
-        <View className="mb-6">
-          <Text className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</Text>
-          
-          <View className="space-y-3">
-            <TouchableOpacity className="bg-blue-600 rounded-lg p-4">
-              <Text className="text-white font-semibold text-lg">View Patient Records</Text>
-              <Text className="text-blue-100">Access patient information</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity className="bg-green-600 rounded-lg p-4">
-              <Text className="text-white font-semibold text-lg">Create Prescription</Text>
-              <Text className="text-green-100">Write new prescriptions</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity className="bg-orange-600 rounded-lg p-4">
-              <Text className="text-white font-semibold text-lg">Update Availability</Text>
-              <Text className="text-orange-100">Manage your schedule</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Statistics */}
-        <View className="bg-white rounded-lg p-6 shadow-sm">
-          <Text className="text-lg font-semibold text-gray-900 mb-4">This Week</Text>
-          <View className="flex-row justify-between">
-            <View className="items-center">
-              <Text className="text-2xl font-bold text-blue-600">0</Text>
-              <Text className="text-gray-600">Appointments</Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-2xl font-bold text-green-600">0</Text>
-              <Text className="text-gray-600">Patients</Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-2xl font-bold text-purple-600">0</Text>
-              <Text className="text-gray-600">Prescriptions</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-    </ScrollView>
-  );
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   return (
-    <View className="flex-1">
-      {user?.userType === 'doctor' ? <DoctorDashboard /> : <PatientDashboard />}
-    </View>
+    <>
+      <Stack.Screen options={{ title: 'Home' }} />
+      <ScrollView className="flex-1 bg-white" showsVerticalScrollIndicator={false}>
+        <View className="items-start justify-start p-5">
+          <Text className="text-sm font-medium mb-2">Welcome back!</Text>
+          <Text className='text-xl font-bold text-blue-500'>What are you looking for?</Text>
+          <View className='w-full'>
+            <View className='border border-gray-200 p-4 w-full rounded-lg mt-3 flex-row items-center justify-start'>
+              {/* search icon */}
+              <AntDesign name="search1" size={22} color="gray" />
+              <Text className='text-sm text-gray-500 pl-4'>Search Doctors, Medicines, Hospitals...</Text>
+            </View>
+          </View>
+          <View className=' w-full p-1'>
+            <View className="w-full mt-3">
+              {/* Cards Grid - 2x2 layout */}
+              <View className="flex-row justify-between mb-4">
+                {/* Doctors Card */}
+                <TouchableOpacity className="bg-blue-600 rounded-2xl p-4 w-[48%] h-32">
+                  <Image 
+                    source={require('../../assets/doctor.png')} 
+                    className="w-8 h-12 mb-2"
+                  />
+                  <Text className="text-white text-lg font-semibold">Doctors</Text>
+                  <Text className="text-white text-sm opacity-90">Book Appointment</Text>
+                </TouchableOpacity>
+                {/* Diagnostics Card */}
+                <TouchableOpacity className="bg-blue-600 rounded-2xl p-4 w-[48%] h-32">
+                  <Image 
+                    source={require('../../assets/microscope.png')} 
+                    className="w-12 h-12 mb-2"
+                  />
+                  <Text className="text-white text-lg font-semibold">Diagnostics</Text>
+                  <Text className="text-white text-sm opacity-90">Test & health checkup</Text>
+                </TouchableOpacity>
+              </View>
+              <View className="flex-row justify-between">
+                {/* Hospitals Card */}
+                <TouchableOpacity className="bg-blue-600 rounded-2xl p-4 w-[48%] h-32">
+                  <Image 
+                    source={require('../../assets/first-aid-kit.png')} 
+                    className="w-8 h-8 mb-2"
+                  />
+                  <Text className="text-white text-lg font-semibold">Hospitals</Text>
+                  <Text className="text-white text-sm opacity-90">Search Top Hospitals</Text>
+                </TouchableOpacity>
+                {/* Pharmacy Card */}
+                <TouchableOpacity className="bg-blue-600 rounded-2xl p-4 w-[48%] h-32">
+                  <Image 
+                    source={require('../../assets/pill.png')} 
+                    className="w-8 h-8 mb-2"
+                  />
+                  <Text className="text-white text-lg font-semibold">Pharmacy</Text>
+                  <Text className="text-white text-sm opacity-90">Order medicines</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+          {/* Specialized Doctors Section */}
+          <View className="w-full mt-6">
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-lg font-bold text-gray-800">Consult Specialized Doctors</Text>
+              <TouchableOpacity>
+                <Text className="text-blue-500 font-medium">View All</Text>
+              </TouchableOpacity>
+            </View>
+            {/* Horizontal Slider */}
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              className="w-full"
+              contentContainerStyle={{ paddingRight: 20 }}
+            >
+              {loading ? (
+                <Text className="text-gray-500 p-4">Loading specialties...</Text>
+              ) : (
+                categories.map((category) => (
+                  <TouchableOpacity
+                    key={category.id}
+                    className="bg-white rounded-2xl p-4 mr-4 items-center shadow-sm border border-gray-100"
+                    style={{ width: 140, height: 160 }}
+                  >
+                    <View 
+                      className="w-16 h-16 p-2 rounded-full items-center justify-center mb-1"
+                      style={{ backgroundColor: category.color }}
+                    >
+                      <Image 
+                        source={getIconSource(category.icon_name)} 
+                        className="w-8 h-8 rounded-lg"
+                      />
+                    </View>
+                    <Text className="text-center text-gray-800 font-medium text-sm mb-1">
+                      {category.name}
+                    </Text>
+                    <Text className="text-center text-blue-500 font-medium text-xs">
+                      {category.specialist_count} Specialist
+                    </Text>
+                  </TouchableOpacity>
+                ))
+              )}
+            </ScrollView>
+          </View>
+          {/* Lab Test Section */}
+          <View className="w-full mt-6 mb-6">
+            <View 
+              className="bg-orange-50 rounded-3xl p-6 mx-2"
+              style={{ backgroundColor: '#FDF4E8' }}
+            >
+              <Text className="text-xl font-bold text-gray-800 mb-6">
+                Lab Test From The{"\n"}Comfort Of Your Home
+              </Text>
+              {/* Features Row */}
+              <View className="flex-row justify-between mb-6">
+                {/* 100% Safe & Hygienic */}
+                <View className="flex-1 items-center mr-4">
+                  <View className="w-16 h-16 rounded-2xl items-center justify-center mb-3">
+                    <Image 
+                      source={require('../../assets/ad/shield.png')} 
+                      className="w-8 h-10"
+                    />
+                  </View>
+                  <Text className="text-center text-gray-800 font-medium text-sm">
+                    100% Safe &{"\n"}Hygienic
+                  </Text>
+                </View>
+                {/* View Reports Online */}
+                <View className="flex-1 items-center ml-4">
+                  <View className="w-16 h-16 rounded-2xl items-center justify-center mb-3">
+                    <Image 
+                      source={require('../../assets/ad/exam.png')} 
+                      className="w-8 h-10"
+                    />
+                  </View>
+                  <Text className="text-center text-gray-800 font-medium text-sm">
+                    View Reports{"\n"}Online
+                  </Text>
+                </View>
+              </View>
+              {/* View All Packages Button */}
+              <TouchableOpacity 
+                className="bg-blue-500 rounded-xl py-4 px-6"
+                // style={{ backgroundColor: '#1E3A8A' }}
+              >
+                <Text className="text-white text-center text-base font-semibold">
+                  View All Packages
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+    </>
   );
 }

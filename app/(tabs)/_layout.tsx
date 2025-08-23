@@ -1,21 +1,16 @@
+
 import { Tabs, router } from 'expo-router';
-import { TouchableOpacity, Text } from 'react-native';
+import { View, Text } from 'react-native';
 import { useAuthStore } from '../../store/store';
 import { AuthGuard } from '../../components/AuthGuard';
-
-import { TabBarIcon } from '../../components/TabBarIcon';
+import { AntDesign } from '@expo/vector-icons';
+import { NotificationButton } from '../../components/NotificationButton';
+import { UserAvatar } from '../../components/UserAvatar';
 
 export default function TabLayout() {
-  const { logout, user } = useAuthStore();
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      router.replace('/(auth)/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
+  const { user } = useAuthStore();
+  // TODO: Replace with real unread count from store or API
+  const unreadCount = 3;
 
   return (
     <AuthGuard>
@@ -27,20 +22,25 @@ export default function TabLayout() {
           name="index"
           options={{
             title: 'Home',
-            tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
-            headerTitle: `Welcome, ${user?.name || 'User'}`,
+            tabBarIcon: ({ color }) => <AntDesign name="home" size={24} color={color} />,
+            headerTitle: '',
+            headerShadowVisible: false,
+            headerLeft: () => (
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 12 }}>
+                <UserAvatar name={user?.name || 'User'} />
+                <Text style={{ fontWeight: 'bold', fontSize: 16, color: '#222' }}>{user?.name || 'User'}</Text>
+              </View>
+            ),
             headerRight: () => (
-              <TouchableOpacity onPress={handleLogout} className="mr-4">
-                <Text className="text-blue-600 font-semibold">Logout</Text>
-              </TouchableOpacity>
+              <NotificationButton unreadCount={unreadCount} />
             ),
           }}
         />
         <Tabs.Screen
-          name="two"
+          name="appointments"
           options={{
             title: user?.userType === 'doctor' ? 'Patients' : 'Appointments',
-            tabBarIcon: ({ color }) => <TabBarIcon name="calendar" color={color} />,
+            tabBarIcon: ({ color }) => <AntDesign name="calendar" size={24} color={color} />,
           }}
         />
       </Tabs>

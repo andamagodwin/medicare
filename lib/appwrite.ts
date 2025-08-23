@@ -1,4 +1,8 @@
+
+
 import { Client, Account, Databases, ID, Query } from 'appwrite';
+
+
 
 export const appwriteConfig = {
   endpoint: 'https://fra.cloud.appwrite.io/v1', // Your Appwrite endpoint
@@ -102,6 +106,28 @@ export async function clearAllSessions() {
     }
     console.error('Error clearing sessions:', error);
     throw error;
+  }
+}
+
+export async function getCategories() {
+  try {
+    // Replace with your categories collection ID
+    const categoriesCollectionId = '68a9e197001bd64f65aa'
+    const response = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      categoriesCollectionId
+    );
+    // Map Appwrite documents to Category type
+    return response.documents.map((doc: any) => ({
+      id: doc.$id,
+      name: doc.name,
+      icon_name: doc.icon_name,
+      color: doc.color,
+      specialist_count: doc.specialist_count || 0,
+    }));
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return [];
   }
 }
 
