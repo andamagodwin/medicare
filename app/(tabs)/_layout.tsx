@@ -1,5 +1,5 @@
 
-import { Tabs, router } from 'expo-router';
+import { Tabs } from 'expo-router';
 import { View, Text } from 'react-native';
 import { useAuthStore } from '../../store/store';
 import { AuthGuard } from '../../components/AuthGuard';
