@@ -20,6 +20,13 @@ export const databases = new Databases(client);
 // Auth functions
 export async function createAccount(email: string, password: string, name: string) {
   try {
+    // First check if there's already an active session
+    const currentUser = await getCurrentUser();
+    if (currentUser) {
+      // If there's already a session, sign out first
+      await signOut();
+    }
+    
     const newAccount = await account.create(ID.unique(), email, password, name);
     
     if (!newAccount) throw new Error('Account creation failed');
@@ -33,10 +40,24 @@ export async function createAccount(email: string, password: string, name: strin
 
 export async function signIn(email: string, password: string) {
   try {
+    // First check if there's already an active session
+    const currentUser = await getCurrentUser();
+    if (currentUser) {
+      // If there's already a session, sign out first
+      await signOut();
+    }
+    
     const session = await account.createEmailPasswordSession(email, password);
     return session;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error signing in:', error);
+    // If session already exists, try to get current user
+    if (error.message?.includes('session is active')) {
+      const user = await getCurrentUser();
+      if (user) {
+        throw new Error('You are already logged in. Please logout first.');
+      }
+    }
     throw error;
   }
 }
@@ -57,10 +78,29 @@ export async function getCurrentUser() {
 
 export async function signOut() {
   try {
+    // Try to delete current session
     const session = await account.deleteSession('current');
     return session;
-  } catch (error) {
+  } catch (error: any) {
+    // If no session exists, that's fine
+    if (error.code === 401 || error.message?.includes('session')) {
+      return null;
+    }
     console.error('Error signing out:', error);
+    throw error;
+  }
+}
+
+// Function to clear all sessions (useful for debugging)
+export async function clearAllSessions() {
+  try {
+    await account.deleteSessions();
+    return true;
+  } catch (error: any) {
+    if (error.code === 401) {
+      return true; // No sessions to clear
+    }
+    console.error('Error clearing sessions:', error);
     throw error;
   }
 }

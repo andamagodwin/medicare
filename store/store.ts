@@ -7,7 +7,8 @@ import {
   signOut, 
   getCurrentUser, 
   createUserProfile, 
-  getUserProfile 
+  getUserProfile,
+  clearAllSessions
 } from '../lib/appwrite';
 
 export interface User {
@@ -33,6 +34,7 @@ export interface AuthState {
   checkAuthState: (showLoading?: boolean) => Promise<void>;
   setUser: (user: User | null) => void;
   setHasHydrated: (hasHydrated: boolean) => void;
+  clearSessions: () => Promise<void>;
 }
 
 export interface RegisterData {
@@ -146,6 +148,22 @@ export const useAuthStore = create<AuthState>()(
           });
         } catch (error) {
           console.error('Logout error:', error);
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
+      clearSessions: async () => {
+        set({ isLoading: true });
+        try {
+          await clearAllSessions();
+          set({ 
+            user: null, 
+            isLoggedIn: false, 
+            isLoading: false 
+          });
+        } catch (error) {
+          console.error('Clear sessions error:', error);
           set({ isLoading: false });
           throw error;
         }

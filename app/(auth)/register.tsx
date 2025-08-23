@@ -26,7 +26,7 @@ export default function Register() {
     licenseNumber: '',
   });
 
-  const { register, isLoading } = useAuthStore();
+  const { register, isLoading, clearSessions } = useAuthStore();
 
   const updateFormData = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -49,27 +49,50 @@ export default function Register() {
       return;
     }
 
-    try {
-      const registerData: RegisterData = {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        userType,
-        phone: formData.phone || undefined,
-        ...(userType === 'patient' && {
-          dateOfBirth: formData.dateOfBirth || undefined,
-          address: formData.address || undefined,
-        }),
-        ...(userType === 'doctor' && {
-          specialization: formData.specialization,
-          licenseNumber: formData.licenseNumber,
-        }),
-      };
+    const registerData: RegisterData = {
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      userType,
+      phone: formData.phone || undefined,
+      ...(userType === 'patient' && {
+        dateOfBirth: formData.dateOfBirth || undefined,
+        address: formData.address || undefined,
+      }),
+      ...(userType === 'doctor' && {
+        specialization: formData.specialization,
+        licenseNumber: formData.licenseNumber,
+      }),
+    };
 
+    try {
       await register(registerData);
       router.replace('/(tabs)');
     } catch (error: any) {
-      Alert.alert('Registration Failed', error.message || 'An error occurred during registration');
+      // Handle session conflict error
+      if (error.message?.includes('session is active') || error.message?.includes('already logged in')) {
+        Alert.alert(
+          'Session Conflict', 
+          'There seems to be an active session. Would you like to clear it and try again?',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { 
+              text: 'Clear & Retry', 
+              onPress: async () => {
+                try {
+                  await clearSessions();
+                  await register(registerData);
+                  router.replace('/(tabs)');
+                } catch (retryError: any) {
+                  Alert.alert('Registration Failed', retryError.message || 'An error occurred during registration');
+                }
+              }
+            },
+          ]
+        );
+      } else {
+        Alert.alert('Registration Failed', error.message || 'An error occurred during registration');
+      }
     }
   };
 

@@ -14,7 +14,7 @@ import { useAuthStore } from '../../store/store';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, isLoading } = useAuthStore();
+  const { login, isLoading, clearSessions } = useAuthStore();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -26,7 +26,30 @@ export default function Login() {
       await login(email, password);
       router.replace('/(tabs)');
     } catch (error: any) {
-      Alert.alert('Login Failed', error.message || 'An error occurred during login');
+      // Handle session conflict error
+      if (error.message?.includes('session is active') || error.message?.includes('already logged in')) {
+        Alert.alert(
+          'Session Conflict', 
+          'There seems to be an active session. Would you like to clear it and try again?',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { 
+              text: 'Clear & Retry', 
+              onPress: async () => {
+                try {
+                  await clearSessions();
+                  await login(email, password);
+                  router.replace('/(tabs)');
+                } catch (retryError: any) {
+                  Alert.alert('Login Failed', retryError.message || 'An error occurred during login');
+                }
+              }
+            },
+          ]
+        );
+      } else {
+        Alert.alert('Login Failed', error.message || 'An error occurred during login');
+      }
     }
   };
 
