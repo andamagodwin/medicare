@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useEffect } from 'react';
@@ -36,11 +36,14 @@ export default function Home() {
           <Text className="text-sm font-medium mb-2">Welcome back!</Text>
           <Text className='text-xl font-bold text-blue-500'>What are you looking for?</Text>
           <View className='w-full'>
-            <View className='border border-gray-200 p-4 w-full rounded-lg mt-3 flex-row items-center justify-start'>
+            <TouchableOpacity 
+              className='border border-gray-200 p-4 w-full rounded-lg mt-3 flex-row items-center justify-start'
+              onPress={() => router.push('/search')}
+            >
               {/* search icon */}
               <AntDesign name="search1" size={22} color="gray" />
               <Text className='text-sm text-gray-500 pl-4'>Search Doctors, Medicines, Hospitals...</Text>
-            </View>
+            </TouchableOpacity>
           </View>
           <View className=' w-full p-1'>
             <View className="w-full mt-3">
