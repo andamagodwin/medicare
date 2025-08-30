@@ -42,6 +42,13 @@ export default function RootLayout() {
           presentation: 'card'
         }} 
       />
+      <Stack.Screen 
+        name="recently-viewed" 
+        options={{ 
+          headerShown: true,
+          presentation: 'card'
+        }} 
+      />
     </Stack>
   );
 }

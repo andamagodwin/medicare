@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { getDoctorById } from '../../lib/appwrite';
 import { UserAvatar } from '../../components/UserAvatar';
+import { useRecentlyViewedStore } from '../../store/recentlyViewedStore';
 
 interface Doctor {
   $id: string;
@@ -31,19 +32,34 @@ export default function DoctorDetailsScreen() {
   const { doctorId } = useLocalSearchParams<{ doctorId: string }>();
   const [doctor, setDoctor] = useState<Doctor | null>(null);
   const [loading, setLoading] = useState(true);
+  const { addRecentDoctor } = useRecentlyViewedStore();
 
   const loadDoctorDetails = useCallback(async () => {
     try {
       setLoading(true);
       const doctorData = await getDoctorById(doctorId);
-      setDoctor(doctorData as unknown as Doctor);
+      const doctorInfo = doctorData as unknown as Doctor;
+      setDoctor(doctorInfo);
+      
+      // Track this doctor as recently viewed
+      if (doctorInfo) {
+        addRecentDoctor({
+          $id: doctorInfo.$id,
+          name: doctorInfo.name,
+          speciality: doctorInfo.speciality,
+          rating: doctorInfo.rating,
+          experience: doctorInfo.experience,
+          hospital: doctorInfo.hospital,
+          consultationFee: doctorInfo.consultationFee,
+        });
+      }
     } catch (error) {
       console.error('Error loading doctor details:', error);
       Alert.alert('Error', 'Failed to load doctor details');
     } finally {
       setLoading(false);
     }
-  }, [doctorId]);
+  }, [doctorId, addRecentDoctor]);
 
   useEffect(() => {
     if (doctorId) {
@@ -161,7 +177,7 @@ export default function DoctorDetailsScreen() {
                 </View>
                 <View className="items-center">
                   <Text className="text-lg font-bold text-gray-900">
-                    ${doctor.consultationFee || '50'}
+                    {`$${doctor.consultationFee || '50'}`}
                   </Text>
                   <Text className="text-gray-500 text-sm">Consultation</Text>
                 </View>

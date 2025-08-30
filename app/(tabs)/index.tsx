@@ -3,6 +3,8 @@ import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useEffect } from 'react';
 import { useCategoriesStore } from '../../store/categoriesStore';
+import { useRecentlyViewedStore } from '../../store/recentlyViewedStore';
+import { UserAvatar } from '../../components/UserAvatar';
 
 // Fallback categories data (local images mapping)
 const getIconSource = (iconName: string) => {
@@ -23,6 +25,7 @@ const getIconSource = (iconName: string) => {
 
 export default function Home() {
   const { categories, loading, fetchCategories } = useCategoriesStore();
+  const { recentDoctors, getRecentDoctors } = useRecentlyViewedStore();
 
   useEffect(() => {
     fetchCategories();
@@ -93,6 +96,77 @@ export default function Home() {
               </View>
             </View>
           </View>
+
+          {/* Recently Viewed Doctors Section */}
+          {recentDoctors.length > 0 && (
+            <View className="w-full mt-6">
+              <View className="flex-row justify-between items-center mb-4">
+                <Text className="text-lg font-bold text-gray-800">Recently Viewed Doctors</Text>
+                <TouchableOpacity onPress={() => router.push('/recently-viewed')}>
+                  <Text className="text-blue-500 font-medium">View All</Text>
+                </TouchableOpacity>
+              </View>
+              {/* Horizontal Slider */}
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                className="w-full"
+                contentContainerStyle={{ paddingRight: 20 }}
+              >
+                {getRecentDoctors(5).map((doctor) => (
+                  <TouchableOpacity
+                    key={doctor.$id}
+                    className="bg-white rounded-2xl p-4 mr-4 shadow-sm border border-gray-100"
+                    style={{ width: 280 }}
+                    onPress={() => router.push(`/doctor/${doctor.$id}`)}
+                  >
+                    <View className="flex-row items-center mb-3">
+                      <UserAvatar 
+                        name={doctor.name} 
+                        size={50}
+                      />
+                      <View className="flex-1">
+                        <Text className="text-base font-semibold text-gray-800" numberOfLines={1}>
+                          Dr. {doctor.name}
+                        </Text>
+                        <Text className="text-sm text-gray-500" numberOfLines={1}>
+                          {doctor.speciality}
+                        </Text>
+                        {doctor.hospital && (
+                          <Text className="text-xs text-gray-400" numberOfLines={1}>
+                            {doctor.hospital}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                    <View className="flex-row justify-between items-center">
+                      <View className="flex-row items-center">
+                        {doctor.rating && (
+                          <>
+                            <AntDesign name="star" size={14} color="#FFD700" />
+                            <Text className="text-sm text-gray-600 ml-1">
+                              {doctor.rating.toFixed(1)}
+                            </Text>
+                          </>
+                        )}
+                        {doctor.experience && (
+                          <Text className="text-xs text-gray-500 ml-2">
+                            {doctor.experience}
+                          </Text>
+                        )}
+                      </View>
+                      {doctor.consultationFee && (
+                        <Text className="text-sm font-semibold text-green-600">
+                          {`$${doctor.consultationFee}`}
+                        </Text>
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
           {/* Specialized Doctors Section */}
           <View className="w-full mt-6">
             <View className="flex-row justify-between items-center mb-4">
