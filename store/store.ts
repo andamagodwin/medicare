@@ -110,11 +110,20 @@ export const useAuthStore = create<AuthState>()(
             // Sign in the user
             await signIn(email, password);
             
+            // Map specialization to speciality for database consistency
+            const dbProfileData = {
+              ...profileData,
+              ...(profileData.specialization && {
+                speciality: profileData.specialization,
+                specialization: undefined, // Remove the old field
+              }),
+            };
+            
             // Create user profile
             await createUserProfile(newAccount.$id, {
               name,
               email,
-              ...profileData,
+              ...dbProfileData,
             });
             
             const user: User = {

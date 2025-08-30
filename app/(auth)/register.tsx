@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Link, router } from 'expo-router';
 import { useAuthStore, RegisterData } from '../../store/store';
+import { SpecialtyDropdown } from '../../components/SpecialtyDropdown';
 
 export default function Register() {
   const [userType, setUserType] = useState<'patient' | 'doctor' | null>(null);
@@ -235,11 +236,10 @@ export default function Register() {
               <>
                 <View>
                   <Text className="text-sm font-medium text-gray-700 mb-2">Specialization *</Text>
-                  <TextInput
-                    className="border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-gray-50"
-                    placeholder="e.g., Cardiology, Pediatrics"
-                    value={formData.specialization}
-                    onChangeText={(value) => updateFormData('specialization', value)}
+                  <SpecialtyDropdown
+                    selectedSpecialty={formData.specialization}
+                    onSelect={(specialty) => updateFormData('specialization', specialty)}
+                    placeholder="Select your medical specialty"
                   />
                 </View>
 

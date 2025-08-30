@@ -48,7 +48,7 @@ export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Category[]>([]);
   const [doctorResults, setDoctorResults] = useState<Doctor[]>([]);
-  const { categories, loading, fetchCategories } = useCategoriesStore();
+  const { categories, fetchCategories } = useCategoriesStore();
 
   useEffect(() => {
     fetchCategories();
@@ -247,27 +247,7 @@ export default function SearchScreen() {
           </View>
 
           {/* All Categories */}
-          <View className="px-5 mb-6">
-            <Text className="text-lg font-bold text-gray-800 mb-4">
-              All Specialties
-            </Text>
-            
-            {loading ? (
-              <View className="items-center py-8">
-                <Text className="text-gray-500">Loading specialties...</Text>
-              </View>
-            ) : (
-              <FlatList
-                data={categories}
-                renderItem={renderCategoryItem}
-                keyExtractor={(item) => item.id}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingRight: 20 }}
-              />
-            )}
-          </View>
-
+          
           
         </ScrollView>
       </SafeAreaView>
