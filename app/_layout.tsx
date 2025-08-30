@@ -35,6 +35,13 @@ export default function RootLayout() {
           presentation: 'card'
         }} 
       />
+      <Stack.Screen 
+        name="specialty/[specialty]" 
+        options={{ 
+          headerShown: true,
+          presentation: 'card'
+        }} 
+      />
     </Stack>
   );
 }

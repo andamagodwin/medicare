@@ -116,6 +116,7 @@ export default function Home() {
                     key={category.id}
                     className="bg-white rounded-2xl p-4 mr-4 items-center shadow-sm border border-gray-100"
                     style={{ width: 140, height: 160 }}
+                    onPress={() => router.push(`/specialty/${encodeURIComponent(category.name)}` as any)}
                   >
                     <View 
                       className="w-16 h-16 p-2 rounded-full items-center justify-center mb-1"

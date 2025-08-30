@@ -18,11 +18,8 @@ export default function DoctorsScreen() {
   }, [fetchCategories]);
 
   const handleSpecialtyPress = (specialty: any) => {
-    // Navigate to search with the specialty filter
-    router.push({
-      pathname: '/search',
-      params: { specialty: specialty.name }
-    } as any);
+    // Navigate to specialty screen to show doctors in that specialty
+    router.push(`/specialty/${encodeURIComponent(specialty.name)}` as any);
   };
 
   const handleSearchMore = () => {
