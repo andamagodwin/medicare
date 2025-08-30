@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   View, 
   Text, 
@@ -8,10 +8,12 @@ import {
   Image,
   FlatList 
 } from 'react-native';
-import { Stack, router } from 'expo-router';
+import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCategoriesStore, Category } from '../store/categoriesStore';
+import { searchDoctors } from '../lib/appwrite';
+import { UserAvatar } from '../components/UserAvatar';
 
 // Fallback categories data (local images mapping)
 const getIconSource = (iconName: string) => {
@@ -30,28 +32,58 @@ const getIconSource = (iconName: string) => {
   return icons[iconName] || icons['healthcare-and-medical'];
 };
 
+interface Doctor {
+  $id: string;
+  name: string;
+  email: string;
+  userType: string;
+  speciality?: string;
+  experience?: string;
+  rating?: number;
+  hospital?: string;
+}
+
 export default function SearchScreen() {
+  const { specialty } = useLocalSearchParams<{ specialty?: string }>();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Category[]>([]);
+  const [doctorResults, setDoctorResults] = useState<Doctor[]>([]);
   const { categories, loading, fetchCategories } = useCategoriesStore();
 
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
 
-  const handleSearch = (query: string) => {
+  const handleSearch = useCallback(async (query: string) => {
     setSearchQuery(query);
-    // TODO: Implement actual search logic here
-    // For now, we'll filter categories based on search query
+    
     if (query.trim()) {
-      const filtered = categories.filter(category =>
+      // Search categories
+      const filteredCategories = categories.filter(category =>
         category.name.toLowerCase().includes(query.toLowerCase())
       );
-      setSearchResults(filtered);
+      setSearchResults(filteredCategories);
+      
+      // Search doctors
+      try {
+        const doctors = await searchDoctors(query);
+        setDoctorResults(doctors as unknown as Doctor[]);
+      } catch (error) {
+        console.error('Error searching doctors:', error);
+        setDoctorResults([]);
+      }
     } else {
       setSearchResults([]);
+      setDoctorResults([]);
     }
-  };
+  }, [categories]);
+
+  // Auto-search when specialty parameter is provided
+  useEffect(() => {
+    if (specialty) {
+      handleSearch(specialty);
+    }
+  }, [specialty, handleSearch]);
 
   const renderCategoryItem = ({ item }: { item: any }) => (
     <TouchableOpacity
@@ -73,6 +105,30 @@ export default function SearchScreen() {
       <Text className="text-center text-blue-500 font-medium text-xs">
         {item.specialist_count} Specialist
       </Text>
+    </TouchableOpacity>
+  );
+
+  const renderDoctorItem = ({ item }: { item: Doctor }) => (
+    <TouchableOpacity
+      className="bg-white rounded-2xl p-4 mb-3 shadow-sm border border-gray-100"
+      onPress={() => router.push(`/doctor/${item.$id}` as any)}
+    >
+      <View className="flex-row items-center">
+        <UserAvatar name={item.name} size={50} />
+        <View className="flex-1 ml-3">
+          <Text className="font-semibold text-gray-900">Dr. {item.name}</Text>
+          <Text className="text-blue-600 capitalize">{item.speciality || 'General Physician'}</Text>
+          <View className="flex-row items-center mt-1">
+            <Ionicons name="star" size={14} color="#FCD34D" />
+            <Text className="text-gray-600 text-sm ml-1">{item.rating || '4.8'}</Text>
+            <Text className="text-gray-400 text-sm ml-2">• {item.experience || '5+'} years</Text>
+          </View>
+          {item.hospital && (
+            <Text className="text-gray-500 text-sm mt-1">{item.hospital}</Text>
+          )}
+        </View>
+        <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+      </View>
     </TouchableOpacity>
   );
 
@@ -126,27 +182,50 @@ export default function SearchScreen() {
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           {/* Search Results */}
           {searchQuery.length > 0 && (
-            <View className="px-5 mb-6">
-              <Text className="text-lg font-bold text-gray-800 mb-4">
-                Search Results ({searchResults.length})
-              </Text>
-              {searchResults.length > 0 ? (
-                <FlatList
-                  data={searchResults}
-                  renderItem={renderCategoryItem}
-                  keyExtractor={(item) => item.id}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={{ paddingRight: 20 }}
-                />
-              ) : (
-                <View className="items-center py-8">
-                  <Ionicons name="search-outline" size={48} color="#9CA3AF" />
-                  <Text className="text-gray-500 mt-2">No results found</Text>
-                  <Text className="text-gray-400 text-sm">Try searching with different keywords</Text>
+            <>
+              {/* Doctor Results */}
+              {doctorResults.length > 0 && (
+                <View className="px-5 mb-6">
+                  <Text className="text-lg font-bold text-gray-800 mb-4">
+                    Doctors ({doctorResults.length})
+                  </Text>
+                  <FlatList
+                    data={doctorResults}
+                    renderItem={renderDoctorItem}
+                    keyExtractor={(item) => item.$id}
+                    scrollEnabled={false}
+                  />
                 </View>
               )}
-            </View>
+
+              {/* Specialty Results */}
+              {searchResults.length > 0 && (
+                <View className="px-5 mb-6">
+                  <Text className="text-lg font-bold text-gray-800 mb-4">
+                    Specialties ({searchResults.length})
+                  </Text>
+                  <FlatList
+                    data={searchResults}
+                    renderItem={renderCategoryItem}
+                    keyExtractor={(item) => item.id}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingRight: 20 }}
+                  />
+                </View>
+              )}
+
+              {/* No Results */}
+              {doctorResults.length === 0 && searchResults.length === 0 && (
+                <View className="px-5 mb-6">
+                  <View className="items-center py-8">
+                    <Ionicons name="search-outline" size={48} color="#9CA3AF" />
+                    <Text className="text-gray-500 mt-2">No results found</Text>
+                    <Text className="text-gray-400 text-sm">Try searching with different keywords</Text>
+                  </View>
+                </View>
+              )}
+            </>
           )}
 
           {/* Quick Search Categories */}

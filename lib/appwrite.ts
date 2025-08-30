@@ -179,3 +179,67 @@ export async function getUserProfile(userId: string) {
     return null;
   }
 }
+
+// Doctor search functions
+export async function searchDoctors(searchQuery: string = '', speciality: string = '') {
+  try {
+    const queries = [Query.equal('userType', 'doctor')];
+    
+    // Instead of using search, we'll get all doctors and filter client-side
+    // This avoids the fulltext index requirement
+    if (speciality) {
+      queries.push(Query.equal('speciality', speciality));
+    }
+    
+    const doctors = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      queries
+    );
+    
+    // If there's a search query, filter the results client-side
+    if (searchQuery && searchQuery.trim()) {
+      const filtered = doctors.documents.filter(doctor => 
+        doctor.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        doctor.speciality?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        doctor.hospital?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      return filtered;
+    }
+    
+    return doctors.documents;
+  } catch (error) {
+    console.error('Error searching doctors:', error);
+    return [];
+  }
+}
+
+export async function getDoctorById(doctorId: string) {
+  try {
+    const doctor = await databases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      doctorId
+    );
+    
+    return doctor;
+  } catch (error) {
+    console.error('Error getting doctor details:', error);
+    return null;
+  }
+}
+
+export async function getAllDoctors() {
+  try {
+    const doctors = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.equal('userType', 'doctor')]
+    );
+    
+    return doctors.documents;
+  } catch (error) {
+    console.error('Error getting all doctors:', error);
+    return [];
+  }
+}

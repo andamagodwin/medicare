@@ -28,6 +28,13 @@ export default function RootLayout() {
           presentation: 'card'
         }} 
       />
+      <Stack.Screen 
+        name="doctor/[doctorId]" 
+        options={{ 
+          headerShown: true,
+          presentation: 'card'
+        }} 
+      />
     </Stack>
   );
 }
