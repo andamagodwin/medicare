@@ -243,3 +243,44 @@ export async function getAllDoctors() {
     return [];
   }
 }
+
+export async function getDoctorCountBySpecialty(specialty: string) {
+  try {
+    const doctors = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [
+        Query.equal('userType', 'doctor'),
+        Query.equal('speciality', specialty)
+      ]
+    );
+    
+    return doctors.total;
+  } catch (error) {
+    console.error('Error getting doctor count for specialty:', error);
+    return 0;
+  }
+}
+
+export async function getAllSpecialtyCounts() {
+  try {
+    const doctors = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.equal('userType', 'doctor')]
+    );
+    
+    // Count doctors by specialty
+    const specialtyCounts: { [key: string]: number } = {};
+    doctors.documents.forEach((doctor: any) => {
+      if (doctor.speciality) {
+        specialtyCounts[doctor.speciality] = (specialtyCounts[doctor.speciality] || 0) + 1;
+      }
+    });
+    
+    return specialtyCounts;
+  } catch (error) {
+    console.error('Error getting specialty counts:', error);
+    return {};
+  }
+}

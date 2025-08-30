@@ -19,14 +19,14 @@ import { UserAvatar } from '../components/UserAvatar';
 const getIconSource = (iconName: string) => {
   const icons: { [key: string]: any } = {
     heartbeat: require('../assets/categories/heart.png'),
-    pediatrician: require('../assets/categories/baby-boy.png'),
+    pediatrics: require('../assets/categories/baby-boy.png'),
     brain: require('../assets/categories/brain.png'),
     teeth: require('../assets/categories/smile.png'),
     stomach: require('../assets/categories/stomach1.png'),
     kidney: require('../assets/categories/urology.png'),
     cancer: require('../assets/categories/cancer-cell.png'),
     homeopathy: require('../assets/categories/herbal-treatment.png'),
-    'healthcare-and-medical': require('../assets/categories/healthcare-and-medical.png'),
+    'healthcare-and-medical': require('../assets/categories/baby-boy.png'),
     patient: require('../assets/categories/patient.png'),
   };
   return icons[iconName] || icons['healthcare-and-medical'];
@@ -103,7 +103,7 @@ export default function SearchScreen() {
         {item.name}
       </Text>
       <Text className="text-center text-blue-500 font-medium text-xs">
-        {item.specialist_count} Specialist
+        {item.specialist_count} {item.specialist_count === 1 ? 'Specialist' : 'Specialists'}
       </Text>
     </TouchableOpacity>
   );

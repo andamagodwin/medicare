@@ -100,7 +100,7 @@ export default function DoctorsScreen() {
                     {category.name}
                   </Text>
                   <Text className="text-center text-blue-500 text-sm">
-                    {category.specialist_count} Specialist
+                    {category.specialist_count} {category.specialist_count === 1 ? 'Specialist' : 'Specialists'}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -129,7 +129,7 @@ export default function DoctorsScreen() {
 function getSpecialtyIcon(specialtyName: string): any {
   const iconMap: { [key: string]: any } = {
     'Cardiology': 'heart',
-    'Pediatrician': 'person',
+    'Pediatrics': 'person',
     'Homeopathy': 'medical',
     'General Physician': 'medical-outline',
     'Kidney Issues': 'water',
