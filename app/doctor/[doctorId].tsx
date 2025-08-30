@@ -39,6 +39,22 @@ export default function DoctorDetailsScreen() {
       setLoading(true);
       const doctorData = await getDoctorById(doctorId);
       const doctorInfo = doctorData as unknown as Doctor;
+      // Debug: log raw doctor data and field types to catch unexpected values
+      console.debug('doctorData raw', doctorData);
+      try {
+        console.debug('doctor fields:', {
+          name: typeof doctorInfo?.name,
+          speciality: typeof doctorInfo?.speciality,
+          experience: typeof doctorInfo?.experience,
+          about: typeof doctorInfo?.about,
+          qualifications: Array.isArray((doctorInfo as any)?.qualifications) ? 'array' : typeof (doctorInfo as any)?.qualifications,
+          availability: Array.isArray((doctorInfo as any)?.availability) ? 'array' : typeof (doctorInfo as any)?.availability,
+          consultationFee: typeof doctorInfo?.consultationFee,
+          hospital: typeof doctorInfo?.hospital,
+        });
+      } catch (e) {
+        console.warn('Error logging doctor fields', e);
+      }
       setDoctor(doctorInfo);
       
       // Track this doctor as recently viewed
@@ -207,7 +223,7 @@ export default function DoctorDetailsScreen() {
           <View className="bg-white mx-4 mt-4 rounded-2xl p-6 shadow-sm border border-gray-100">
             <Text className="text-lg font-bold text-gray-900 mb-3">About</Text>
             <Text className="text-gray-600 leading-6">
-              {doctor.about || `Dr. ${doctor.name} is a experienced ${doctor.speciality || 'physician'} with over ${doctor.experience || '5'} years of practice. Dedicated to providing comprehensive healthcare services with a patient-centered approach.`}
+              {String(doctor.about || `Dr. ${doctor.name} is a experienced ${doctor.speciality || 'physician'} with over ${doctor.experience || '5'} years of practice. Dedicated to providing comprehensive healthcare services with a patient-centered approach.`)}
             </Text>
           </View>
 
@@ -215,10 +231,14 @@ export default function DoctorDetailsScreen() {
           <View className="bg-white mx-4 mt-4 rounded-2xl p-6 shadow-sm border border-gray-100">
             <Text className="text-lg font-bold text-gray-900 mb-3">Qualifications</Text>
             <View className="space-y-3">
-              {(doctor.qualifications?.split(',') || ['MBBS', 'MD - Internal Medicine']).map((qualification, index) => (
+              {(
+                Array.isArray(doctor.qualifications)
+                  ? doctor.qualifications
+                  : (typeof doctor.qualifications === 'string' ? doctor.qualifications.split(',') : ['MBBS', 'MD - Internal Medicine'])
+              ).map((qualification, index) => (
                 <View key={index} className="flex-row items-center">
                   <View className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
-                  <Text className="text-gray-700">{qualification.trim()}</Text>
+                  <Text className="text-gray-700">{String(qualification).trim()}</Text>
                 </View>
               ))}
             </View>
@@ -239,10 +259,10 @@ export default function DoctorDetailsScreen() {
           <View className="bg-white mx-4 mt-4 mb-6 rounded-2xl p-6 shadow-sm border border-gray-100">
             <Text className="text-lg font-bold text-gray-900 mb-3">Availability</Text>
             <View className="space-y-2">
-              {(doctor.availability || ['Mon-Fri: 9:00 AM - 6:00 PM', 'Sat: 9:00 AM - 2:00 PM']).map((time, index) => (
+              {(Array.isArray(doctor.availability) ? doctor.availability : [String(doctor.availability || 'Mon-Fri: 9:00 AM - 6:00 PM'), 'Sat: 9:00 AM - 2:00 PM']).map((time, index) => (
                 <View key={index} className="flex-row items-center">
                   <Ionicons name="time-outline" size={16} color="#6B7280" />
-                  <Text className="text-gray-700 ml-2">{time}</Text>
+                  <Text className="text-gray-700 ml-2">{String(time)}</Text>
                 </View>
               ))}
             </View>

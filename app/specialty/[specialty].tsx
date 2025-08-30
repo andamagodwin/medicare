@@ -50,7 +50,7 @@ export default function SpecialtyScreen() {
   const renderDoctorItem = ({ item }: { item: Doctor }) => (
     <TouchableOpacity
       className="bg-white rounded-2xl p-4 mb-4 shadow-sm border border-gray-100"
-      onPress={() => router.push(`/doctor/${item.$id}` as any)}
+      onPress={() => { console.log('navigate:doctor', item.$id); router.push(`/doctor/${item.$id}` as any); }}
     >
       <View className="flex-row items-start">
         <UserAvatar name={item.name} size={60} />
@@ -66,7 +66,7 @@ export default function SpecialtyScreen() {
               {item.rating || '4.8'}
             </Text>
             <Text className="text-gray-500 ml-4">
-              {item.experience || '5+'} years experience
+              {`${item.experience || '5+'} years experience`}
             </Text>
           </View>
           
@@ -80,7 +80,7 @@ export default function SpecialtyScreen() {
           <View className="flex-row items-center justify-between mt-2">
             <View className="flex-row items-center">
               <Text className="text-green-600 font-bold text-lg">
-                ${item.consultationFee || '50'}
+                {`$${item.consultationFee || '50'}`}
               </Text>
               <Text className="text-gray-500 ml-1">consultation</Text>
             </View>

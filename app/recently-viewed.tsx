@@ -36,38 +36,38 @@ export default function RecentlyViewedScreen() {
   const renderDoctorItem = ({ item }: { item: RecentDoctor }) => (
     <TouchableOpacity
       className="bg-white rounded-2xl p-4 mb-4 shadow-sm border border-gray-100"
-      onPress={() => router.push(`/doctor/${item.$id}` as any)}
+      onPress={() => { console.log('navigate:doctor', item.$id); router.push(`/doctor/${item.$id}` as any); }}
     >
       <View className="flex-row items-start">
-        <UserAvatar name={item.name} size={60} />
+          <UserAvatar name={String(item.name || '')} size={60} />
         <View className="flex-1 ml-4">
-          <Text className="text-lg font-bold text-gray-900">Dr. {item.name}</Text>
-          <Text className="text-blue-600 font-medium capitalize mb-2">
-            {item.speciality || 'General Physician'}
-          </Text>
+            <Text className="text-lg font-bold text-gray-900">Dr. {String(item.name || '')}</Text>
+            <Text className="text-blue-600 font-medium capitalize mb-2">
+              {item.speciality ? String(item.speciality) : 'General Physician'}
+            </Text>
           
           <View className="flex-row items-center mb-2">
             <Ionicons name="star" size={16} color="#FCD34D" />
-            <Text className="text-gray-700 ml-1 font-medium">
-              {item.rating || '4.8'}
-            </Text>
+              <Text className="text-gray-700 ml-1 font-medium">
+                {typeof item.rating === 'number' ? item.rating : (item.rating ? String(item.rating) : '4.8')}
+              </Text>
             <Text className="text-gray-500 ml-4">
-              {item.experience || '5+'} years experience
+                {`${String(item.experience || '5+')} years experience`}
             </Text>
           </View>
           
           {item.hospital && (
             <View className="flex-row items-center mb-2">
               <Ionicons name="location-outline" size={16} color="#6B7280" />
-              <Text className="text-gray-600 ml-1">{item.hospital}</Text>
+                <Text className="text-gray-600 ml-1">{String(item.hospital)}</Text>
             </View>
           )}
           
           <View className="flex-row items-center justify-between mt-2">
             <View className="flex-row items-center">
-              <Text className="text-green-600 font-bold text-lg">
-                ${item.consultationFee || '50'}
-              </Text>
+                <Text className="text-green-600 font-bold text-lg">
+                  {`$${typeof item.consultationFee === 'number' ? item.consultationFee : (item.consultationFee ? Number(item.consultationFee) : '50')}`}
+                </Text>
               <Text className="text-gray-500 ml-1">consultation</Text>
             </View>
             <Text className="text-gray-400 text-sm">

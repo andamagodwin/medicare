@@ -113,56 +113,65 @@ export default function Home() {
                 className="w-full"
                 contentContainerStyle={{ paddingRight: 20 }}
               >
-                {getRecentDoctors(5).map((doctor) => (
-                  <TouchableOpacity
-                    key={doctor.$id}
-                    className="bg-white rounded-2xl p-4 mr-4 shadow-sm border border-gray-100"
-                    style={{ width: 280 }}
-                    onPress={() => router.push(`/doctor/${doctor.$id}`)}
-                  >
-                    <View className="flex-row items-center mb-3">
-                      <UserAvatar 
-                        name={doctor.name} 
-                        size={50}
-                      />
-                      <View className="flex-1">
-                        <Text className="text-base font-semibold text-gray-800" numberOfLines={1}>
-                          Dr. {doctor.name}
-                        </Text>
-                        <Text className="text-sm text-gray-500" numberOfLines={1}>
-                          {doctor.speciality}
-                        </Text>
-                        {doctor.hospital && (
-                          <Text className="text-xs text-gray-400" numberOfLines={1}>
-                            {doctor.hospital}
+                {getRecentDoctors(5).map((doctor) => {
+                  const name = String(doctor?.name || '');
+                  const speciality = doctor?.speciality ? String(doctor.speciality) : '';
+                  const hospital = doctor?.hospital ? String(doctor.hospital) : '';
+                  const rating = typeof doctor?.rating === 'number' ? doctor.rating : (doctor?.rating ? Number(doctor.rating) : undefined);
+                  const experience = doctor?.experience ? String(doctor.experience) : undefined;
+                  const consultationFee = typeof doctor?.consultationFee === 'number' ? doctor.consultationFee : (doctor?.consultationFee ? Number(doctor.consultationFee) : undefined);
+
+                  return (
+                    <TouchableOpacity
+                      key={String(doctor.$id)}
+                      className="bg-white rounded-2xl p-4 mr-4 shadow-sm border border-gray-100"
+                      style={{ width: 280 }}
+                      onPress={() => { console.log('navigate:doctor', doctor.$id); router.push(`/doctor/${doctor.$id}`); }}
+                    >
+                      <View className="flex-row items-center mb-3">
+                        <UserAvatar 
+                          name={name} 
+                          size={50}
+                        />
+                        <View className="flex-1">
+                          <Text className="text-base font-semibold text-gray-800" numberOfLines={1}>
+                            Dr. {name}
                           </Text>
-                        )}
-                      </View>
-                    </View>
-                    <View className="flex-row justify-between items-center">
-                      <View className="flex-row items-center">
-                        {doctor.rating && (
-                          <>
-                            <AntDesign name="star" size={14} color="#FFD700" />
-                            <Text className="text-sm text-gray-600 ml-1">
-                              {doctor.rating.toFixed(1)}
+                          <Text className="text-sm text-gray-500" numberOfLines={1}>
+                            {speciality}
+                          </Text>
+                          {hospital.length > 0 && (
+                            <Text className="text-xs text-gray-400" numberOfLines={1}>
+                              {hospital}
                             </Text>
-                          </>
-                        )}
-                        {doctor.experience && (
-                          <Text className="text-xs text-gray-500 ml-2">
-                            {doctor.experience}
+                          )}
+                        </View>
+                      </View>
+                      <View className="flex-row justify-between items-center">
+                        <View className="flex-row items-center">
+                          {typeof rating === 'number' && (
+                            <>
+                              <AntDesign name="star" size={14} color="#FFD700" />
+                              <Text className="text-sm text-gray-600 ml-1">
+                                {rating.toFixed(1)}
+                              </Text>
+                            </>
+                          )}
+                          {experience && (
+                            <Text className="text-xs text-gray-500 ml-2">
+                              {experience.includes('years') ? experience : `${experience} years`}
+                            </Text>
+                          )}
+                        </View>
+                        {consultationFee && (
+                          <Text className="text-sm font-semibold text-green-600">
+                            {`$${consultationFee}`}
                           </Text>
                         )}
                       </View>
-                      {doctor.consultationFee && (
-                        <Text className="text-sm font-semibold text-green-600">
-                          {`$${doctor.consultationFee}`}
-                        </Text>
-                      )}
-                    </View>
-                  </TouchableOpacity>
-                ))}
+                    </TouchableOpacity>
+                  );
+                })}
               </ScrollView>
             </View>
           )}

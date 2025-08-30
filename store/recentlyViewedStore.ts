@@ -33,8 +33,19 @@ export const useRecentlyViewedStore = create<RecentlyViewedState>()(
         const filteredDoctors = recentDoctors.filter(d => d.$id !== doctor.$id);
         
         // Add to beginning of array with current timestamp
+        // Sanitize doctor fields to primitives
+        const sanitized = {
+          $id: String(doctor.$id),
+          name: String(doctor.name || ''),
+          speciality: doctor.speciality ? String(doctor.speciality) : undefined,
+          rating: typeof doctor.rating === 'number' ? doctor.rating : (doctor.rating ? Number(doctor.rating) : undefined),
+          experience: doctor.experience ? String(doctor.experience) : undefined,
+          hospital: doctor.hospital ? String(doctor.hospital) : undefined,
+          consultationFee: typeof doctor.consultationFee === 'number' ? doctor.consultationFee : (doctor.consultationFee ? Number(doctor.consultationFee) : undefined),
+        } as RecentDoctor;
+
         const updatedDoctors = [
-          { ...doctor, viewedAt: now },
+          { ...sanitized, viewedAt: now },
           ...filteredDoctors
         ].slice(0, 20); // Keep only last 20 viewed doctors
         
