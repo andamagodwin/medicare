@@ -21,6 +21,13 @@ export default function RootLayout() {
           presentation: 'card'
         }} 
       />
+      <Stack.Screen 
+        name="doctors" 
+        options={{ 
+          headerShown: true,
+          presentation: 'card'
+        }} 
+      />
     </Stack>
   );
 }

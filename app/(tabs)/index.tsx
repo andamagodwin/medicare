@@ -50,7 +50,10 @@ export default function Home() {
               {/* Cards Grid - 2x2 layout */}
               <View className="flex-row justify-between mb-4">
                 {/* Doctors Card */}
-                <TouchableOpacity className="bg-blue-600 rounded-2xl p-4 w-[48%] h-32">
+                <TouchableOpacity 
+                  className="bg-blue-600 rounded-2xl p-4 w-[48%] h-32"
+                  onPress={() => router.push('/doctors')}
+                >
                   <Image 
                     source={require('../../assets/doctor.png')} 
                     className="w-8 h-12 mb-2"
