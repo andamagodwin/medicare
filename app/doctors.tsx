@@ -4,11 +4,29 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
+  Image,
 } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useCategoriesStore } from '../store/categoriesStore';
+
+// Fallback categories data (local images mapping)
+const getIconSource = (iconName: string) => {
+  const icons: { [key: string]: any } = {
+    heartbeat: require('../assets/categories/heart.png'),
+    pediatrics: require('../assets/categories/baby-boy.png'),
+    brain: require('../assets/categories/brain.png'),
+    teeth: require('../assets/categories/smile.png'),
+    stomach: require('../assets/categories/stomach1.png'),
+    kidney: require('../assets/categories/urology.png'),
+    cancer: require('../assets/categories/cancer-cell.png'),
+    homeopathy: require('../assets/categories/herbal-treatment.png'),
+    'healthcare-and-medical': require('../assets/categories/baby-boy.png'),
+    patient: require('../assets/categories/patient.png'),
+  };
+  return icons[iconName] || icons['healthcare-and-medical'];
+};
 
 export default function DoctorsScreen() {
   const { categories, loading, fetchCategories } = useCategoriesStore();
@@ -87,12 +105,11 @@ export default function DoctorsScreen() {
                   >
                     <View 
                       className="w-10 h-10 rounded-full items-center justify-center"
-                      style={{ backgroundColor: category.color || '#60A5FA' }}
+                      
                     >
-                      <Ionicons 
-                        name={getSpecialtyIcon(category.name)} 
-                        size={20} 
-                        color="white" 
+                      <Image 
+                        source={getIconSource(category.icon_name)} 
+                        className="w-6 h-6"
                       />
                     </View>
                   </View>
@@ -123,22 +140,4 @@ export default function DoctorsScreen() {
       </SafeAreaView>
     </>
   );
-}
-
-// Helper function to get appropriate icons for specialties
-function getSpecialtyIcon(specialtyName: string): any {
-  const iconMap: { [key: string]: any } = {
-    'Cardiology': 'heart',
-    'Pediatrics': 'person',
-    'Homeopathy': 'medical',
-    'General Physician': 'medical-outline',
-    'Kidney Issues': 'water',
-    'Mental Wellness': 'happy-outline',
-    'Digestive': 'restaurant',
-    'Cancer': 'shield',
-    'Surgery': 'person-outline',
-    'Dental Care': 'happy',
-  };
-  
-  return iconMap[specialtyName] || 'medical-outline';
 }
